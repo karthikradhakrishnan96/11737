@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DATA_DIR=fairseq/data-bin/ted_aze_spm8000/aze_eng/
-MODEL_DIR1=/content/drive/My\ Drive/MNLP/assignment2/ted_aze_spm8000/aze_eng/
+DATA_DIR=fairseq/data-bin/ted_bel_spm8000/bel_eng/
+MODEL_DIR1=/content/drive/My\ Drive/MNLP/assignment2/ted_bel_spm8000/bel_eng/
 mkdir -pv "$MODEL_DIR1"
 
 # change the cuda_visible_device to the GPU device number you are using

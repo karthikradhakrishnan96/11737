@@ -7,8 +7,10 @@ fi
 
 VOCAB_SIZE=8000
 RAW_DDIR=data/ted_raw/
-PROC_DDIR=data/ted_processed/azetur_sepspm"$VOCAB_SIZE"/
-BINARIZED_DDIR=fairseq/data-bin/ted_azetur_sepspm"$VOCAB_SIZE"/
+#Change aze to bel
+#Change tur to rus
+PROC_DDIR=data/ted_processed/belrus_sepspm"$VOCAB_SIZE"/
+BINARIZED_DDIR=fairseq/data-bin/ted_belrus_sepspm"$VOCAB_SIZE"/
 FAIR_SCRIPTS=fairseq/scripts
 SPM_TRAIN=$FAIR_SCRIPTS/spm_train.py
 SPM_ENCODE=$FAIR_SCRIPTS/spm_encode.py
@@ -16,8 +18,8 @@ TOKENIZER=mosesdecoder/scripts/tokenizer/tokenizer.perl
 FILTER=mosesdecoder/scripts/training/clean-corpus-n.perl
 
 LANS=(
-  aze 
-  tur)
+  bel
+  rus)
 
 for LAN in ${LANS[@]}; do
   mkdir -p "$PROC_DDIR"/"$LAN"_eng

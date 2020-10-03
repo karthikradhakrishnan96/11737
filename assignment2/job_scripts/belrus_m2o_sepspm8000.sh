@@ -1,15 +1,16 @@
 #!/bin/bash
 
-DATA_DIR=fairseq/data-bin/ted_aze_spm8000/aze_eng/
-MODEL_DIR1=/content/drive/My\ Drive/MNLP/assignment2/ted_aze_spm8000/aze_eng/
-mkdir -pv "$MODEL_DIR1"
+DATA_DIR=fairseq/data-bin/ted_belrus_sepspm8000/M2O/
+MODEL_DIR=/content/drive/My\ Drive/MNLP/assignment2/ted_belrus_sepspm8000/M2O/
+mkdir -pv "$MODEL_DIR"
 
-# change the cuda_visible_device to the GPU device number you are using
 # train the model
 CUDA_VISIBLE_DEVICE=0 fairseq-train \
 	$DATA_DIR \
 	--arch transformer_iwslt_de_en \
-	--max-epoch 80 \
+	--task translation_multi_simple_epoch \
+	--lang-pairs bel-eng,rus-eng \
+	--max-epoch 40 \
         --distributed-world-size 1 \
 	--share-all-embeddings \
 	--no-epoch-checkpoints \
@@ -20,27 +21,33 @@ CUDA_VISIBLE_DEVICE=0 fairseq-train \
 	--max-tokens 4500 \
 	--update-freq 2 \
 	--seed 2 \
-  	--save-dir "$MODEL_DIR1" \
-	--log-interval 100 >> "$MODEL_DIR1"/train.log 2>&1
+  	--save-dir "$MODEL_DIR" \
+	--log-interval 100 >> "$MODEL_DIR"/train.log 2>&1
 
 # translate the valid and test set
-CUDA_VISIBLE_DEVICE=0  fairseq-generate $DATA_DIR \
+CUDA_VISIBLE_DEVICE=0 fairseq-generate $DATA_DIR \
           --gen-subset test \
-          --path "$MODEL_DIR1"/checkpoint_best.pt \
+	  --task translation_multi_simple_epoch \
+	  --lang-pairs bel-eng,rus-eng \
+          --source-lang bel --target-lang eng \
+          --path "$MODEL_DIR"/checkpoint_best.pt \
           --batch-size 32 \
 	  --tokenizer moses \
           --remove-bpe sentencepiece \
 	  --scoring sacrebleu \
-          --beam 5   > "$MODEL_DIR1"/test_b5.log
+          --beam 5   > "$MODEL_DIR"/test_b5.log
 
 
 CUDA_VISIBLE_DEVICE=0 fairseq-generate $DATA_DIR \
           --gen-subset valid \
-          --path "$MODEL_DIR1"/checkpoint_best.pt \
+	  --task translation_multi_simple_epoch \
+	  --lang-pairs bel-eng,rus-eng \
+          --source-lang bel --target-lang eng \
+          --path "$MODEL_DIR"/checkpoint_best.pt \
           --batch-size 32 \
 	  --tokenizer moses \
           --remove-bpe sentencepiece \
 	  --scoring sacrebleu \
-          --beam 5   > "$MODEL_DIR1"/valid_b5.log
+          --beam 5   > "$MODEL_DIR"/valid_b5.log
 
 

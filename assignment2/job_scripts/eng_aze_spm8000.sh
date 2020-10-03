@@ -1,8 +1,8 @@
 #!/bin/bash
 
 DATA_DIR=fairseq/data-bin/ted_aze_spm8000/eng_aze/
-MODEL_DIR=fairseq/checkpoints/ted_aze_spm8000/eng_aze/
-mkdir -p $MODEL_DIR
+MODEL_DIR=/content/drive/My\ Drive/MNLP/assignment2/ted_aze_spm8000/eng_aze/
+mkdir -pv "$MODEL_DIR"
 
 # train the model
 CUDA_VISIBLE_DEVICE=xx fairseq-train \
@@ -19,13 +19,13 @@ CUDA_VISIBLE_DEVICE=xx fairseq-train \
 	--max-tokens 4500 \
 	--update-freq 2 \
 	--seed 2 \
-  	--save-dir $MODEL_DIR \
-	--log-interval 100 >> $MODEL_DIR/train.log 2>&1
+  	--save-dir "$MODEL_DIR" \
+	--log-interval 100 >> "$MODEL_DIR"/train.log 2>&1
 
 # translate the valid and test set
 CUDA_VISIBLE_DEVICE=xx fairseq-generate $DATA_DIR \
           --gen-subset test \
-          --path $MODEL_DIR/checkpoint_best.pt \
+          --path "$MODEL_DIR"/checkpoint_best.pt \
           --batch-size 32 \
 	  --tokenizer moses \
           --remove-bpe sentencepiece \
@@ -35,7 +35,7 @@ CUDA_VISIBLE_DEVICE=xx fairseq-generate $DATA_DIR \
 
 CUDA_VISIBLE_DEVICE=xx fairseq-generate $DATA_DIR \
           --gen-subset valid \
-          --path $MODEL_DIR/checkpoint_best.pt \
+          --path "$MODEL_DIR"/checkpoint_best.pt \
           --batch-size 32 \
 	  --tokenizer moses \
           --remove-bpe sentencepiece \

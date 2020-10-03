@@ -1,11 +1,11 @@
 #!/bin/bash
 
 DATA_DIR=fairseq/data-bin/ted_azetur_sepspm8000/M2O/
-MODEL_DIR=fairseq/checkpoints/ted_azetur_sepspm8000/M2O/
-mkdir -p $MODEL_DIR
+MODEL_DIR=/content/drive/My\ Drive/MNLP/assignment2/ted_azetur_sepspm8000/M2O/
+mkdir -pv "$MODEL_DIR"
 
 # train the model
-CUDA_VISIBLE_DEVICE=xx fairseq-train \
+CUDA_VISIBLE_DEVICE=0 fairseq-train \
 	$DATA_DIR \
 	--arch transformer_iwslt_de_en \
 	--task translation_multi_simple_epoch \
@@ -21,16 +21,16 @@ CUDA_VISIBLE_DEVICE=xx fairseq-train \
 	--max-tokens 4500 \
 	--update-freq 2 \
 	--seed 2 \
-  	--save-dir $MODEL_DIR \
-	--log-interval 100 >> $MODEL_DIR/train.log 2>&1
+  	--save-dir "$MODEL_DIR" \
+	--log-interval 100 >> "$MODEL_DIR"/train.log 2>&1
 
 # translate the valid and test set
-CUDA_VISIBLE_DEVICE=xx fairseq-generate $DATA_DIR \
+CUDA_VISIBLE_DEVICE=0 fairseq-generate $DATA_DIR \
           --gen-subset test \
 	  --task translation_multi_simple_epoch \
 	  --lang-pairs aze-eng,tur-eng \
           --source-lang aze --target-lang eng \
-          --path $MODEL_DIR/checkpoint_best.pt \
+          --path "$MODEL_DIR"/checkpoint_best.pt \
           --batch-size 32 \
 	  --tokenizer moses \
           --remove-bpe sentencepiece \
@@ -38,12 +38,12 @@ CUDA_VISIBLE_DEVICE=xx fairseq-generate $DATA_DIR \
           --beam 5   > "$MODEL_DIR"/test_b5.log
 
 
-CUDA_VISIBLE_DEVICE=xx fairseq-generate $DATA_DIR \
+CUDA_VISIBLE_DEVICE=0 fairseq-generate $DATA_DIR \
           --gen-subset valid \
 	  --task translation_multi_simple_epoch \
 	  --lang-pairs aze-eng,tur-eng \
           --source-lang aze --target-lang eng \
-          --path $MODEL_DIR/checkpoint_best.pt \
+          --path "$MODEL_DIR"/checkpoint_best.pt \
           --batch-size 32 \
 	  --tokenizer moses \
           --remove-bpe sentencepiece \
