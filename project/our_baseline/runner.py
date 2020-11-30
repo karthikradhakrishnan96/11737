@@ -4,10 +4,12 @@ import os
 import torch
 from torch import optim
 
-from group.project.our_baseline.consts import intent_set, slot_set
-from group.project.our_baseline.dataloader_utils import get_nlu_dataloader
-from group.project.our_baseline.models import BertBasedTODModel
-from group.project.our_baseline.trainer import train, validate
+import sys
+sys.path.append(".")
+from consts import intent_set, slot_set
+from dataloader_utils import get_nlu_dataloader
+from models import BertBasedTODModel
+from trainer import train, validate
 
 
 def get_cmd_args():
@@ -28,22 +30,26 @@ def get_cmd_args():
 def get_model_and_opt(params):
     # TODO: Add pretraind stuff
     model = BertBasedTODModel(params.bert_type, len(intent_set), len(slot_set))
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
     return model, optimizer
 
 
 if __name__ == "__main__":
     params = get_cmd_args()
+
+    save_dir = params.model_save_path + "/" + params.run_key
+    os.system(f'mkdir -p {save_dir}')
+
     train_loader, val_loader, test_loader = get_nlu_dataloader(params)
     model, optimizer = get_model_and_opt(params)
     best_intent_acc = -1
     best_slot_f1 = -1
     best_epoch = -1
-    save_dir = params.model_save_path + "/" + params.run_key
-    os.system(f'mkdir -p {save_dir}')
     for epoch in range(1, params.n_epoch + 1):
         print(
-            f'Training Epoch : {epoch}, best results so far  : {best_intent_acc}, {best_slot_f1} @ epoch (by intent) : {best_epoch}')
+            f'Training Epoch : {epoch}, best results so far  : {best_intent_acc}, {best_slot_f1} @ epoch  : {best_epoch} (by intent)')
         # train(train_loader, model, optimizer)
         validation_results = validate(val_loader, model)
         if validation_results['intent_acc'] > best_intent_acc:
@@ -54,5 +60,5 @@ if __name__ == "__main__":
 
         if epoch == best_epoch:
             print('Saving model and opt')
-            torch.save(model.state_dict(), params.run_key + "/model_" + str(epoch) + ".pt")
-            torch.save(optimizer.state_dict(), params.run_key + "/opt_" + str(epoch) + ".pt")
+            torch.save(model.state_dict(), save_dir + "/model_" + str(epoch) + ".pt")
+            torch.save(optimizer.state_dict(), save_dir + "/opt_" + str(epoch) + ".pt")

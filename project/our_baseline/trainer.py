@@ -7,9 +7,10 @@ import numpy as np
 import logging
 import torch
 from tqdm import tqdm
-
-from group.project.our_baseline.conll2002_metrics import conll2002_measure
-from group.project.our_baseline.consts import PRINT_EVERY, LABEL_PAD_INDEX, slot_set
+import sys
+sys.path.append(".")
+from conll2002_metrics import conll2002_measure
+from consts import PRINT_EVERY, LABEL_PAD_INDEX, slot_set
 
 logger = logging.getLogger()
 
@@ -69,7 +70,7 @@ def validate(valid_dataloader, model):
                 print(
                     f'Done with {batch_idx}/{len(valid_dataloader)} Intent acc: {intent_num_corr / intent_total} Slot F1: {conll2002_measure(all_slot_conlls)["fb1"]}')
             all_intent_labels, all_slot_label_mask, intent_preds, slot_preds = make_preds(batch, model)
-            intent_total += len(batch)
+            intent_total += all_intent_labels.shape[0]
             intent_num_corr += (torch.argmax(intent_preds, 1) == all_intent_labels).sum().item()
             # TODO: Figure out slot acc
             batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds)
