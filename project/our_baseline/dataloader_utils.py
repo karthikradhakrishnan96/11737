@@ -8,7 +8,10 @@ import torch.utils.data as data
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import BertTokenizer
 
-from group.project.our_baseline.consts import LABEL_PAD_INDEX, intent_set, slot_set
+import sys
+sys.path.append(".")
+
+from consts import LABEL_PAD_INDEX, intent_set, slot_set
 
 logger = logging.getLogger()
 

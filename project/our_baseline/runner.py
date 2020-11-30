@@ -50,7 +50,7 @@ if __name__ == "__main__":
     for epoch in range(1, params.n_epoch + 1):
         print(
             f'Training Epoch : {epoch}, best results so far  : {best_intent_acc}, {best_slot_f1} @ epoch  : {best_epoch} (by intent)')
-        # train(train_loader, model, optimizer)
+        train(train_loader, model, optimizer)
         validation_results = validate(val_loader, model)
         if validation_results['intent_acc'] > best_intent_acc:
             best_epoch = epoch

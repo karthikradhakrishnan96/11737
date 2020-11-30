@@ -52,7 +52,7 @@ def train(train_dataloader, model, optimizer):
         total_loss += loss.item()
         loss.backward()
         optimizer.step()
-        intent_total += len(batch)
+        intent_total += all_intent_labels.shape[0]
         intent_num_corr += (torch.argmax(intent_preds, 1) == all_intent_labels).sum().item()
         batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds)
         all_slot_conlls.extend(batch_slot_conlls)
