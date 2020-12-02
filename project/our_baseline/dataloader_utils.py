@@ -414,6 +414,7 @@ def make_bert_compatible_data(data, tokenizer, params):
 
 def get_nlu_dataloader(params, tokenizer):
     data = load_data(params)
+    # Using first lang only for now.
     train_data = data[params.train_langs[0]]["train"]
     val_data = data[params.test_lang]["eval"]
     test_data = data[params.test_lang]["test"]
@@ -426,15 +427,3 @@ def get_nlu_dataloader(params, tokenizer):
     val_dataloader = DataLoader(dataset=val_dataset, batch_size=params.bS, shuffle=False, collate_fn=lambda x : collate_fn2(x, tokenizer))
     test_dataloader = DataLoader(dataset=test_dataset, batch_size=params.bS, shuffle=False, collate_fn=lambda x : collate_fn2(x, tokenizer))
     return train_dataloader, val_dataloader, test_dataloader
-
-
-
-    # # TODO: Only one for now. Maybe extend later
-    # dataset_tr = Dataset(data[params.train_langs[0]]["train"])
-    # dataset_val = Dataset(data[params.test_lang]["eval"])
-    # dataset_test = Dataset(data[params.test_lang]["test"])
-    #
-    # dataloader_tr = DataLoader(dataset=dataset_tr, batch_size=params.bS, shuffle=True)
-    # dataloader_val = DataLoader(dataset=dataset_val, batch_size=params.bS, shuffle=False)
-    # dataloader_test = DataLoader(dataset=dataset_test, batch_size=params.bS, shuffle=False)
-    # return dataloader_tr, dataloader_val, dataloader_test

@@ -65,5 +65,5 @@ if __name__ == "__main__":
             print('Saving model and opt')
             torch.save(model.state_dict(), save_dir + "/model_" + str(epoch) + ".pt")
             torch.save(optimizer.state_dict(), save_dir + "/opt_" + str(epoch) + ".pt")
-            with open(save_dir + '/output_slot_outs.conll', 'w') as f:
+            with open(save_dir + '/output_slot_outs_' + str(epoch) + '.conll', 'w') as f:
                 f.write('\n'.join(validation_results['output']))
