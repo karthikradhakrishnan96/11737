@@ -233,48 +233,48 @@ def clean_text(data, lang):
         for token in token_list:
             new_token = token
             # detect <TIME>
-            if lang != "th" and (bool(re.match(pattern_time1, token)) or bool(re.match(pattern_time2, token)) or bool(
-                    re.match(pattern_time3, token)) or token in pattern_time4 or (token.isdigit() and len(token) == 3)):
-                new_token = "<TIME>"
-                token_list_clean.append(new_token)
-                continue
-            if lang == "th" and (
-                    bool(re.match(pattern_time_th1, token)) or bool(re.match(pattern_time_th2, token)) or bool(
-                re.match(pattern_time_th3, token))):
-                new_token = "<TIME>"
-                token_list_clean.append(new_token)
-                continue
-            # detect <LAST>
-            if lang == "en" and (bool(re.match(pattern_last1, token)) or bool(re.match(pattern_last2, token)) or bool(
-                    re.match(pattern_last3, token))):
-                new_token = "<LAST>"
-                token_list_clean.append(new_token)
-                continue
-            # detect <DATE>
-            if lang == "en" and (bool(re.match(pattern_date1, token)) or bool(re.match(pattern_date2, token)) or bool(
-                    re.match(pattern_date3, token)) or bool(re.match(pattern_date4, token))):
-                new_token = "<DATE>"
-                token_list_clean.append(new_token)
-                continue
-            # detect <LOCATION>
-            if lang != "th" and (token.isdigit() and len(token) == 5):
-                new_token = "<LOCATION>"
-                token_list_clean.append(new_token)
-                continue
-            # detect <NUMBER>
-            if token.isdigit():
-                new_token = "<NUMBER>"
-                token_list_clean.append(new_token)
-                continue
-            if lang == "en" and ("n't" in token):
-                new_token = "not"
-                token_list_clean.append(new_token)
-                continue
-            if lang == "en":
-                for item in remove_list:
-                    if item in token:
-                        new_token = token.replace(item, "")
-                        break
+            # if lang != "th" and (bool(re.match(pattern_time1, token)) or bool(re.match(pattern_time2, token)) or bool(
+            #         re.match(pattern_time3, token)) or token in pattern_time4 or (token.isdigit() and len(token) == 3)):
+            #     new_token = "<TIME>"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # if lang == "th" and (
+            #         bool(re.match(pattern_time_th1, token)) or bool(re.match(pattern_time_th2, token)) or bool(
+            #     re.match(pattern_time_th3, token))):
+            #     new_token = "<TIME>"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # # detect <LAST>
+            # if lang == "en" and (bool(re.match(pattern_last1, token)) or bool(re.match(pattern_last2, token)) or bool(
+            #         re.match(pattern_last3, token))):
+            #     new_token = "<LAST>"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # # detect <DATE>
+            # if lang == "en" and (bool(re.match(pattern_date1, token)) or bool(re.match(pattern_date2, token)) or bool(
+            #         re.match(pattern_date3, token)) or bool(re.match(pattern_date4, token))):
+            #     new_token = "<DATE>"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # # detect <LOCATION>
+            # if lang != "th" and (token.isdigit() and len(token) == 5):
+            #     new_token = "<LOCATION>"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # # detect <NUMBER>
+            # if token.isdigit():
+            #     new_token = "<NUMBER>"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # if lang == "en" and ("n't" in token):
+            #     new_token = "not"
+            #     token_list_clean.append(new_token)
+            #     continue
+            # if lang == "en":
+            #     for item in remove_list:
+            #         if item in token:
+            #             new_token = token.replace(item, "")
+            #             break
 
             token_list_clean.append(new_token)
 

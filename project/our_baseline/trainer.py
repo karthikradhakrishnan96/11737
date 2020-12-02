@@ -54,7 +54,7 @@ def train(train_dataloader, model, optimizer, tokenizer = None):
         optimizer.step()
         intent_total += all_intent_labels.shape[0]
         intent_num_corr += (torch.argmax(intent_preds, 1) == all_intent_labels).sum().item()
-        text = tokenizer.batch_decode(batch[0].tolist()) if tokenizer is not None else None
+        text = [tokenizer.convert_ids_to_tokens(x) for x in batch[0].tolist()] if tokenizer is not None else None
         batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds, text)
         all_slot_conlls.extend(batch_slot_conlls)
     print("---"*10+"End Train"+"---"*10)
@@ -109,7 +109,15 @@ def get_conll_prediction_from_model_predictions(all_slot_label_mask,
                 out_slot_label_list[i].append(gold_slot_value)
                 pred_slot_value = slot_set[slot_preds[i][j]]
                 slot_preds_list[i].append(pred_slot_value)
-                word = text[i][j] if text is not None else 'w'
+                # Need to get subwords
+                k = j+1
+                if text is None:
+                    word = 'w'
+                else:
+                    word = text[i][j]
+                    while k < len(all_slot_label_mask[i]) and all_slot_label_mask[i,k] == LABEL_PAD_INDEX and text[i][k] not in  ('[SEP]', '[PAD]'):
+                        word += text[i][k].replace("##", "")
+                        k += 1
                 all_slot_conlls.append(word + " " + pred_slot_value + " " + gold_slot_value)
         all_slot_conlls.append("\n")
     return all_slot_conlls
