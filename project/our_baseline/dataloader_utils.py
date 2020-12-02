@@ -24,18 +24,14 @@ def preprocess_nlu_data(data, lang, clean_txt=True, token_mapping=None, vocab_pa
     logger.info("============ Preprocess %s data ============" % lang)
     global intent_set, slot_set
     data_folder = os.path.join('./data/', lang)
-    train_path = os.path.join(data_folder, "train-%s.tsv" % lang)
-    eval_path = os.path.join(data_folder, "eval-%s.tsv" % lang)
-    # test_path = os.path.join(data_folder, "test-%s.tsv" % lang)
-    if lang != "en" and filtered == True:
-        print("testing filtering data")
-        test_path = os.path.join(data_folder, "test-%s.filter.%s.tsv" % (lang, filtered_scale))
-    else:
-        test_path = os.path.join(data_folder, "test-%s.tsv" % lang)
 
-    data_train, _, _ = parse_tsv(train_path)
-    data_eval, intent_set, slot_set = parse_tsv(eval_path, intent_set=intent_set, slot_set=slot_set, istrain=False)
-    data_test, intent_set, slot_set = parse_tsv(test_path, intent_set=intent_set, slot_set=slot_set, istrain=False)
+    train_path = get_path(data_folder, lang, 'train')
+    eval_path = get_path(data_folder, lang, 'eval')
+    test_path = get_path(data_folder, lang, 'test')
+
+    data_train, _, _ = parse(train_path)
+    data_eval, intent_set, slot_set = parse(eval_path, intent_set=intent_set, slot_set=slot_set, istrain=False)
+    data_test, intent_set, slot_set = parse(test_path, intent_set=intent_set, slot_set=slot_set, istrain=False)
 
     assert len(intent_set) == len(set(intent_set))
     assert len(slot_set) == len(set(slot_set))
@@ -71,6 +67,24 @@ def preprocess_nlu_data(data, lang, clean_txt=True, token_mapping=None, vocab_pa
     data_test_bin = binarize_nlu_data(data_test, intent_set, slot_set)
     data[lang] = {"train": data_train_bin, "eval": data_eval_bin, "test": data_test_bin, "vocab": vocab}
 
+
+def get_path(data_folder, lang, split):
+    path = None
+    if os.path.exists(os.path.join(data_folder, f"{split}-%s.tsv" % lang)):
+        path = os.path.join(data_folder, f"{split}-%s.tsv" % lang)
+    elif os.path.exists(os.path.join(data_folder,  f"{split}-%s.json" % lang)):
+        path = os.path.join(data_folder,  f"{split}-%s.json" % lang)
+    return path
+
+
+
+def parse(data_path, intent_set=None, slot_set=None, istrain=True):
+    if data_path.endswith(".tsv"):
+        return parse_tsv(data_path, intent_set, slot_set, istrain)
+    elif data_path.endswith(".json"):
+        return parse_json(data_path, intent_set, slot_set, istrain)
+    print("Unrecognized format, too lazy to throw exception")
+    return None
 
 # for dialogue NLU dataset
 def parse_tsv(data_path, intent_set=None, slot_set=None, istrain=True):
@@ -161,7 +175,24 @@ def parse_tsv(data_path, intent_set=None, slot_set=None, istrain=True):
     return data_tsv, intent_set, slot_set
 
 
-# for dialogue NLU dataset
+def parse_json(data_path, intent_set=None, slot_set=None, istrain=True):
+    # Intent and slot set will be there, let's assume
+    data_json = {"text": [], "slot": [], "intent": []}
+    with open(data_path) as json_file:
+        file_content = json.load(json_file)
+
+        for example in file_content:
+            lrl_tokens = example['lrl_tokens']
+            example_text = [[key for key in word_dict.keys()][0] for word_dict in lrl_tokens]
+            example_slot = [[value for value in word_dict.values()][0]['slot_type'] for word_dict in lrl_tokens]
+            example_slot = [slot if slot!= 'NoLabel' else 'O' for slot in example_slot]
+            example_intent = example['intent_class']
+            data_json['text'].append(example_text)
+            data_json['slot'].append(example_slot)
+            data_json['intent'].append(example_intent)
+    return data_json, intent_set, slot_set
+
+        # for dialogue NLU dataset
 def clean_text(data, lang):
     # detect pattern
     # detect <TIME>
@@ -381,9 +412,8 @@ def make_bert_compatible_data(data, tokenizer, params):
     return all_input_ids, all_attention_mask, all_token_type_ids, all_slot_label_mask, all_intent_labels
 
 
-def get_nlu_dataloader(params):
+def get_nlu_dataloader(params, tokenizer):
     data = load_data(params)
-    tokenizer = BertTokenizer.from_pretrained(params.bert_type)
     train_data = data[params.train_langs[0]]["train"]
     val_data = data[params.test_lang]["eval"]
     test_data = data[params.test_lang]["test"]

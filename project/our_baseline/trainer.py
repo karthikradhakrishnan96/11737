@@ -24,7 +24,7 @@ index2slot = ['O', 'B-weather/noun', 'I-weather/noun', 'B-location', 'I-location
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def train(train_dataloader, model, optimizer):
+def train(train_dataloader, model, optimizer, tokenizer = None):
     print("---"*10+"Begin Train"+"---"*10)
     model.train()
     intent_criterion = nn.CrossEntropyLoss()
@@ -54,11 +54,12 @@ def train(train_dataloader, model, optimizer):
         optimizer.step()
         intent_total += all_intent_labels.shape[0]
         intent_num_corr += (torch.argmax(intent_preds, 1) == all_intent_labels).sum().item()
-        batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds)
+        text = tokenizer.batch_decode(batch[0].tolist()) if tokenizer is not None else None
+        batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds, text)
         all_slot_conlls.extend(batch_slot_conlls)
     print("---"*10+"End Train"+"---"*10)
 
-def validate(valid_dataloader, model):
+def validate(valid_dataloader, model, tokenizer = None):
     print("---"*10+"Begin Validation"+"---"*10)
     model.eval()
     with torch.no_grad():
@@ -73,7 +74,8 @@ def validate(valid_dataloader, model):
             intent_total += all_intent_labels.shape[0]
             intent_num_corr += (torch.argmax(intent_preds, 1) == all_intent_labels).sum().item()
             # TODO: Figure out slot acc
-            batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds)
+            text = [tokenizer.convert_ids_to_tokens(x) for x in batch[0].tolist()] if tokenizer is not None else None
+            batch_slot_conlls = get_conll_prediction_from_model_predictions(all_slot_label_mask, slot_preds, text)
             all_slot_conlls.extend(batch_slot_conlls)
 
     conllscore = conll2002_measure(all_slot_conlls)['fb1']
@@ -92,7 +94,7 @@ def make_preds(batch, model):
 
 
 def get_conll_prediction_from_model_predictions(all_slot_label_mask,
-                                                slot_preds):
+                                                slot_preds, text = None):
     batch_size = all_slot_label_mask.shape[0]
     max_seq_len = all_slot_label_mask.shape[1]
     all_slot_conlls = []
@@ -107,5 +109,7 @@ def get_conll_prediction_from_model_predictions(all_slot_label_mask,
                 out_slot_label_list[i].append(gold_slot_value)
                 pred_slot_value = slot_set[slot_preds[i][j]]
                 slot_preds_list[i].append(pred_slot_value)
-                all_slot_conlls.append("w" + " " + pred_slot_value + " " + gold_slot_value)
+                word = text[i][j] if text is not None else 'w'
+                all_slot_conlls.append(word + " " + pred_slot_value + " " + gold_slot_value)
+        all_slot_conlls.append("\n")
     return all_slot_conlls
