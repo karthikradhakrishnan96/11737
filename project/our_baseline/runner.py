@@ -1,9 +1,10 @@
 import argparse
 import os
+import random
 
 import torch
 from torch import optim
-
+import numpy as np
 import sys
 
 from transformers import BertTokenizer
@@ -26,7 +27,7 @@ def get_cmd_args():
     parser.add_argument("--n_epoch", type=int, default=10, help='')
     parser.add_argument("--model_save_path", type=str, default='../output_dir', help='')
     parser.add_argument('--run_key', type=str, default='test')
-
+    parser.add_argument("--seed", type=int, default=111)
     return parser.parse_args()
 
 
@@ -38,10 +39,17 @@ def get_model_and_opt(params):
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
     return model, optimizer
 
+def set_seed(seed):
+    np.random.mtrand.seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 if __name__ == "__main__":
     params = get_cmd_args()
-
+    set_seed(params.seed)
     save_dir = params.model_save_path + "/" + params.run_key
     os.system(f'mkdir -p {save_dir}')
     tokenizer = BertTokenizer.from_pretrained(params.bert_type)
