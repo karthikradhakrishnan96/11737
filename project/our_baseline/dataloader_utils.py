@@ -416,14 +416,17 @@ def get_nlu_dataloader(params, tokenizer):
     data = load_data(params)
     # Using first lang only for now.
     train_data = data[params.train_langs[0]]["train"]
+    train_data2 = data[params.test_lang]['train']
     val_data = data[params.test_lang]["eval"]
     test_data = data[params.test_lang]["test"]
 
 
     train_dataset = Dataset2(make_bert_compatible_data(train_data, tokenizer, params))
+    train_dataset2 = Dataset2(make_bert_compatible_data(train_data2, tokenizer, params))
     val_dataset = Dataset2(make_bert_compatible_data(val_data, tokenizer, params))
     test_dataset = Dataset2(make_bert_compatible_data(test_data, tokenizer, params))
     train_dataloader = DataLoader(dataset=train_dataset, batch_size=params.bS, shuffle=True, collate_fn=lambda x : collate_fn2(x, tokenizer))
+    train_dataloader2 = DataLoader(dataset=train_dataset2, batch_size=params.bS, shuffle=True, collate_fn=lambda x : collate_fn2(x, tokenizer))
     val_dataloader = DataLoader(dataset=val_dataset, batch_size=params.bS, shuffle=False, collate_fn=lambda x : collate_fn2(x, tokenizer))
     test_dataloader = DataLoader(dataset=test_dataset, batch_size=params.bS, shuffle=False, collate_fn=lambda x : collate_fn2(x, tokenizer))
-    return train_dataloader, val_dataloader, test_dataloader
+    return train_dataloader, val_dataloader, test_dataloader, train_dataloader2

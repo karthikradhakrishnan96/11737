@@ -45,12 +45,15 @@ if __name__ == "__main__":
     save_dir = params.model_save_path + "/" + params.run_key
     os.system(f'mkdir -p {save_dir}')
     tokenizer = BertTokenizer.from_pretrained(params.bert_type)
-    train_loader, val_loader, test_loader = get_nlu_dataloader(params, tokenizer)
+    train_loader, val_loader, test_loader, train_loader2 = get_nlu_dataloader(params, tokenizer)
     model, optimizer = get_model_and_opt(params)
     best_intent_acc = -1
     best_slot_f1 = -1
     best_epoch = -1
     for epoch in range(1, params.n_epoch + 1):
+        if epoch == 5:
+            print("Switching to target dataloader")
+            train_loader = train_loader2
         print(
             f'Training Epoch : {epoch}, best results so far  : {best_intent_acc}, {best_slot_f1} @ epoch  : {best_epoch} (by intent)')
         train(train_loader, model, optimizer, tokenizer)
