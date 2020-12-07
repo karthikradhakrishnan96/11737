@@ -300,18 +300,55 @@ def binarize_nlu_data(data, intent_set, slot_set):
             text_bin.append(token)
         data_bin["text"].append(text_bin)
     # binarize slot
-    for slot in data["slot"]:
+    for example_idx, slot in enumerate(data["slot"]):
         slot_bin = []
+        error = False
         for slot_item in slot:
+            if slot_item not in slot_set:
+                error = True
+                break
             index = slot_set.index(slot_item)
             slot_bin.append(index)
-        data_bin["slot"].append(slot_bin)
+        if error:
+            data_bin['intent'].pop(example_idx)
+            data_bin['text'].pop(example_idx)
+        else:
+            data_bin["slot"].append(slot_bin)
 
     assert len(data_bin["slot"]) == len(data_bin["text"]) == len(data_bin["intent"])
     for text, slot in zip(data_bin["text"], data_bin["slot"]):
         assert len(text) == len(slot)
 
     return data_bin
+
+def binarize_nlu_data(data, intent_set, slot_set):
+    data_bin = {"text": [], "slot": [], "intent": []}
+    # binarize intent
+    for intent, text_tokens, slot in zip(data["intent"], data['text'], data['slot']):
+        intent_index = intent_set.index(intent)
+        text_bin = []
+        for token in text_tokens:
+            text_bin.append(token)
+        slot_bin = []
+        error = False
+        for slot_item in slot:
+            if slot_item not in slot_set:
+                error = True
+                break
+            index = slot_set.index(slot_item)
+            slot_bin.append(index)
+        if not error:
+            data_bin["intent"].append(intent_index)
+            data_bin["text"].append(text_bin)
+            data_bin["slot"].append(slot_bin)
+
+    assert len(data_bin["slot"]) == len(data_bin["text"]) == len(data_bin["intent"])
+    for text, slot in zip(data_bin["text"], data_bin["slot"]):
+        assert len(text) == len(slot)
+
+    return data_bin
+
+
 
 
 class Dataset(data.Dataset):
