@@ -8,7 +8,6 @@ class BertBasedTODModel(nn.Module):
         self.bert_model = BertModel.from_pretrained(bert_type)
         self.num_intent_labels = num_intent_labels
         self.num_slot_labels = num_slot_labels
-        # TODO: Figure out how to get this
         self.bert_output_dim = 768
         self.intent_classifier = nn.Sequential(nn.Dropout(0.2), nn.Linear(self.bert_output_dim, self.num_intent_labels))
         self.slot_classifier = nn.Sequential(nn.Dropout(0.2), nn.Linear(self.bert_output_dim, self.num_slot_labels))
