@@ -466,4 +466,5 @@ def get_nlu_dataloader(params, tokenizer):
     train_dataloader2 = DataLoader(dataset=train_dataset2, batch_size=params.bS, shuffle=True, collate_fn=lambda x : collate_fn2(x, tokenizer))
     val_dataloader = DataLoader(dataset=val_dataset, batch_size=params.bS, shuffle=False, collate_fn=lambda x : collate_fn2(x, tokenizer))
     test_dataloader = DataLoader(dataset=test_dataset, batch_size=params.bS, shuffle=False, collate_fn=lambda x : collate_fn2(x, tokenizer))
+    val_dataloader = test_dataloader
     return train_dataloader, val_dataloader, test_dataloader, train_dataloader2

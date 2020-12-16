@@ -59,9 +59,9 @@ if __name__ == "__main__":
     best_slot_f1 = -1
     best_epoch = -1
     for epoch in range(1, params.n_epoch + 1):
-        if epoch == 5:
-            print("Switching to target dataloader")
-            train_loader = train_loader2
+        # if epoch == 5:
+        #     print("Switching to target dataloader")
+        #     train_loader = train_loader2
         print(
             f'Training Epoch : {epoch}, best results so far  : {best_intent_acc}, {best_slot_f1} @ epoch  : {best_epoch} (by intent)')
         train(train_loader, model, optimizer, tokenizer)
