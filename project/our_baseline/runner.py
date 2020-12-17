@@ -32,7 +32,6 @@ def get_cmd_args():
 
 
 def get_model_and_opt(params):
-    # TODO: Add pretraind stuff
     model = BertBasedTODModel(params.bert_type, len(intent_set), len(slot_set))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -60,7 +59,7 @@ if __name__ == "__main__":
     best_epoch = -1
     for epoch in range(1, params.n_epoch + 1):
         # if epoch == 5:
-        #     print("Switching to target dataloader")
+        #     print("Switching to target dataloader") for transfer learning
         #     train_loader = train_loader2
         print(
             f'Training Epoch : {epoch}, best results so far  : {best_intent_acc}, {best_slot_f1} @ epoch  : {best_epoch} (by intent)')
